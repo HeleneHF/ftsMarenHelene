@@ -17,7 +17,7 @@
 %                            w = angular velocity vector (3x1)
 %                            q = unit quaternion vector (4x1)
 %
-% Author:                   2016-05-30 Thor I. Fossen 
+% Author:                   2017-08-28 Maren Eidal Helene H. Fossum  
 
 %% USER INPUTS
 h = 0.1;                     % sample time (s)
@@ -27,10 +27,15 @@ N  = 200;                    % number of samples
 I = diag([50 100 80]);       % inertia matrix
 I_inv = inv(I);
 
+% PD controller gains
+Kp = 1*I(3);
+Kd = 20*I(3); 
+
 % constants
 deg2rad = pi/180;   
 rad2deg = 180/pi;
 
+% Initial angles (euler)
 phi = -10*deg2rad;            % initial Euler angles
 theta = 10*deg2rad;
 psi = 5*deg2rad;
@@ -69,18 +74,15 @@ psi     = rad2deg*table(:,8);
 w       = rad2deg*table(:,9:11);  
 tau     = table(:,12:14);
 
-clf
-
-figure(gcf)
-subplot(511);plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('\phi'),grid
-subplot(512);plot(t,theta),xlabel('time (s)'),ylabel('deg'),title('\theta'),grid
-subplot(513),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('\psi'),grid
-subplot(514),plot(t,w),xlabel('time (s)'),ylabel('deg/s'),title('w'),grid
-subplot(515),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('\tau'),grid
-
-figure(gcf)
-subplot(511);plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('\phi'),grid
-subplot(512);plot(t,theta),xlabel('time (s)'),ylabel('deg'),title('\theta'),grid
-subplot(513),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('\psi'),grid
-subplot(514),plot(t,w),xlabel('time (s)'),ylabel('deg/s'),title('w'),grid
-subplot(515),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('\tau'),grid
+%% Plot
+% clf
+% 
+% figure(gcf)
+% subplot(211);plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('\phi'),grid
+% subplot(212);plot(t,theta),xlabel('time (s)'),ylabel('deg'),title('\theta'),grid
+% hold on 
+% 
+% figure
+% subplot(311),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('\psi'),grid
+% subplot(312),plot(t,w),xlabel('time (s)'),ylabel('deg/s'),title('w'),grid
+% subplot(313),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('\tau'),grid

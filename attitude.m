@@ -17,7 +17,7 @@
 %                            w = angular velocity vector (3x1)
 %                            q = unit quaternion vector (4x1)
 %
-% Author:                   2016-05-30 Thor I. Fossen 
+% Author:                   2017-08-28 Maren Eidal Helene H. Fossum  
 
 %% USER INPUTS
 h = 0.1;                     % sample time (s)
