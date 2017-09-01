@@ -92,3 +92,12 @@ legend('p','q','r');
 subplot(212),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('\tau'),grid,
 legend('tau_1', 'tau_2', 'tau_3');
 hold on 
+
+
+%plot quaternion 
+figure
+subplot (411), plot(t,q(:,1)),xlabel('time(s)'),ylabel(''),title('\eta'),grid
+subplot (412), plot(t,q(:,2)),xlabel('time(s)'),ylabel(''),title('\epsilon_1'),grid
+subplot (413), plot(t,q(:,3)),xlabel('time(s)'),ylabel(''),title('\epsilon_2'),grid
+subplot (414), plot(t,q(:,4)),xlabel('time(s)'),ylabel(''),title('\epsilon_3'),grid
+hold on 
