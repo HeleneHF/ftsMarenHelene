@@ -17,15 +17,23 @@
 %                            w = angular velocity vector (3x1)
 %                            q = unit quaternion vector (4x1)
 %
-% Author:                   2017-08-28 Maren Eidal Helene H. Fossum  
+% Author:                   2016-05-30 Thor I. Fossen 
 
 %% USER INPUTS
 h = 0.1;                     % sample time (s)
-N  = 200;                    % number of samples
+N  = 2000;                    % number of samples
 
 % model parameters
-I = diag([50 100 80]);       % inertia matrix
+m = 100; %kg
+r = 2; %m
+I = m*r^2*diag([1 1 1]);       % inertia matrix
 I_inv = inv(I);
+
+%PD controller gains
+kd = 20;
+Kd = kd*eye(3);
+
+kp = 1;
 
 % constants
 deg2rad = pi/180;   
@@ -44,7 +52,7 @@ table = zeros(N+1,14);        % memory allocation
 %% FOR-END LOOP
 for i = 1:N+1,
    t = (i-1)*h;                  % time
-   tau = [1 2 1]';               % control law
+   tau  = -Kd*eye(3)*w - kp*q(2:4); % control law
 
    [phi,theta,psi] = q2euler(q); % transform q to Euler angles
    [J,J1,J2] = quatern(q);       % kinematic transformation matrices
@@ -70,13 +78,12 @@ w       = rad2deg*table(:,9:11);
 tau     = table(:,12:14);
 
 clf
-
 figure(gcf)
-subplot(211);plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('\phi'),grid
-subplot(212);plot(t,theta),xlabel('time (s)'),ylabel('deg'),title('\theta'),grid
-hold on 
+subplot(511),plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('\phi'),grid
+subplot(512),plot(t,theta),xlabel('time (s)'),ylabel('deg'),title('\theta'),grid
+subplot(513),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('\psi'),grid
+subplot(514),plot(t,w),xlabel('time (s)'),ylabel('deg/s'),title('w'),grid,
+legend('p','q','r');
+subplot(515),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('\tau'),grid,
+legend('tau_1', 'tau_2', 'tau_3');
 
-figure
-subplot(311),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('\psi'),grid
-subplot(312),plot(t,w),xlabel('time (s)'),ylabel('deg/s'),title('w'),grid
-subplot(313),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('\tau'),grid
