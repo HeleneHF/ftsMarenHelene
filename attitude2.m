@@ -78,6 +78,7 @@ w       = rad2deg*table(:,9:11);
 tau     = table(:,12:14);
 
 %% Plot
+% plot in Euler angles
 clf
 figure(gcf)
 subplot(311),plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('Roll angle \phi'),grid
@@ -90,4 +91,4 @@ subplot(211),plot(t,w),xlabel('time (s)'),ylabel('deg/s'),title('w'),grid,
 legend('p','q','r');
 subplot(212),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('\tau'),grid,
 legend('tau_1', 'tau_2', 'tau_3');
-
+hold on 
