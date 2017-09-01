@@ -7,7 +7,7 @@
 %                              .
 %                            I w - S(Iw)w = tau
 % Control law:
-%                            tau = -Kdw -kp(epsilon_tau)
+%                            tau = -Kdw -kp(epsilon)
 % 
 % Definitions:             
 %                            I = inertia matrix (3x3)
@@ -39,9 +39,9 @@ kp = 1;
 deg2rad = pi/180;   
 rad2deg = 180/pi;
 
-phi = 10*deg2rad;            % initial Euler angles
-theta = -5*deg2rad;
-psi = 15*deg2rad;
+phi = -10*deg2rad;            % initial Euler angles
+theta = 10*deg2rad;
+psi = 5*deg2rad;
 
 q = euler2q(phi,theta,psi);   % transform initial Euler angles to q
 
@@ -86,17 +86,20 @@ subplot(313),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('Yaw angle \psi'
 hold on 
 
 figure
-subplot(211),plot(t,w),xlabel('time (s)'),ylabel('deg/s'),title('w'),grid,
+subplot(211),plot(t,w),xlabel('time (s)'),ylabel('deg/s'),title('Angular velocity w'),grid,
 legend('p','q','r');
-subplot(212),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('\tau'),grid,
+subplot(212),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('Control input \tau'),grid,
 legend('tau_1', 'tau_2', 'tau_3');
-
 
 %plot quaternion 
 figure
-subplot (411), plot(t,q(:,1)),xlabel('time(s)'),ylabel(''),title('\eta'),grid
-subplot (412), plot(t,q(:,2)),xlabel('time(s)'),ylabel(''),title('\epsilon_1'),grid
-subplot (413), plot(t,q(:,3)),xlabel('time(s)'),ylabel(''),title('\epsilon_2'),grid
-subplot (414), plot(t,q(:,4)),xlabel('time(s)'),ylabel(''),title('\epsilon_3'),grid
+subplot (211), plot(t,q(:,1)),xlabel('time(s)'),ylabel(''),title('\eta'),grid
+subplot (212), plot(t,q(:,2)),xlabel('time(s)'),ylabel(''),title('\epsilon_1'),grid
+hold on
+
+figure
+subplot (211), plot(t,q(:,3)),xlabel('time(s)'),ylabel(''),title('\epsilon_2'),grid
+subplot (212), plot(t,q(:,4)),xlabel('time(s)'),ylabel(''),title('\epsilon_3'),grid
 hold on 
+
 
