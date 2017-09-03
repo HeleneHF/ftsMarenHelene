@@ -17,11 +17,11 @@
 %                            w = angular velocity vector (3x1)
 %                            q = unit quaternion vector (4x1)
 %
-% Author:                   2017-09-01 Maren Eidal & Helene H. Fossum
+% Author:                   2017-09-03 Maren Eidal & Helene H. Fossum
 
 %% USER INPUTS
 h = 0.1;                    % sample time (s)
-N  = 2000;                  % number of samples
+N  = 4000;                  % number of samples
 
 % model parameters
 m = 100;                    % mass of the satellite [kg]
@@ -39,9 +39,10 @@ kp = 10;
 deg2rad = pi/180;   
 rad2deg = 180/pi;
 
-phi = 10*deg2rad;           % initial Euler angles
-theta = -5*deg2rad;
-psi = 15*deg2rad;
+% initial Euler angles
+phi = 10*deg2rad;   % roll angle
+theta = -5*deg2rad; % pitch angle
+psi = 15*deg2rad;   % yaw angle
 
 q = euler2q(phi,theta,psi);   % transform initial Euler angles to q
 
@@ -54,8 +55,8 @@ for i = 1:N+1
    t = (i-1)*h;                     % time
    
     % Actual position
-    eta = q(1);
-    e = q(2:4);
+    eta = q(1); % real part of quat. (for easier calc.)
+    e = q(2:4); % imaginary part of quat. (for easier calc.)
     
     % Desired position in Euler angles
     phi_d = (10*sin(0.1*t))*deg2rad;
@@ -63,14 +64,14 @@ for i = 1:N+1
     psi_d = (15*cos(0.05*t))*deg2rad; 
    
     %Desired position in unit quaternions
-    q_d = euler2q(phi_d,theta_d,psi_d);
-    eta_d = q_d(1);
-    e_d = q_d(2:4);
+    q_d = euler2q(phi_d,theta_d,psi_d); % complete quaternion
+    eta_d = q_d(1);                     % real part of quat. (for easier calc.)
+    e_d = q_d(2:4);                     % imaginary part of quat. (for easier calc.)
 
-    %The quaternion error using the conjugate of a quaternion
-    q_tilde = [eta_d*eta + e_d'*e; eta_d*e - eta*e_d + Smtrx(-e_d)*e];
-    eta_tilde = q_tilde(1);
-    e_tilde = q_tilde(2:4); 
+    % The quaternion error using the conjugate of a quaternion
+    q_tilde = [eta_d*eta + e_d'*e; eta_d*e - eta*e_d + Smtrx(-e_d)*e]; % quaternian error (Expression from Prob. 1.4)
+    eta_tilde = q_tilde(1); % eta_tilde, real term of quat. (for easier calc.)
+    e_tilde = q_tilde(2:4); % e_tilde, im. term for quat. (for easier calc.)
     
    tau  = -Kd*eye(3)*w - kp*e_tilde; % control law
 

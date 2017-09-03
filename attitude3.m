@@ -33,21 +33,21 @@ I_inv = inv(I);
 %PD controller gains
 kd = 300;
 Kd = kd*eye(3);
-
 kp = 10;
 
 % constants
 deg2rad = pi/180;   
 rad2deg = 180/pi;
 
-phi = 10*deg2rad;           % initial Euler angles
-theta = -5*deg2rad;
-psi = 15*deg2rad;
+% initial Euler angles
+phi = 10*deg2rad;   % roll angle         
+theta = -5*deg2rad; % pitch angle
+psi = 15*deg2rad;   % yaw angle
 
 q = euler2q(phi,theta,psi);   % transform initial Euler angles to q
 
 w = [0 0 0]';                 % initial angular rates
-w_d = [0 0 0]';
+w_d = [0 0 0]';               % initial desired angular rates  
 table = zeros(N+1,24);        % memory allocation
 
 %% FOR-END LOOP
@@ -55,11 +55,11 @@ for i = 1:N+1
    t = (i-1)*h;                     % time
    
     % Actual position
-    eta = q(1);
-    e = q(2:4);
+    eta = q(1);     % real part of quat. (for easier calc.)
+    e = q(2:4);     % imaginary part of quat. (for easier calc.)
     
     % Desired position in Euler angles
-    phi_d = (10*sin(0.1*t))*deg2rad;
+    phi_d = (10*sin(0.1*t))*deg2rad; 
     theta_d = 0;
     psi_d = (15*cos(0.05*t))*deg2rad; 
 
@@ -68,27 +68,27 @@ for i = 1:N+1
 %     psi_d = 0;
    
     % Desired position in unit quaternions
-    q_d = euler2q(phi_d,theta_d,psi_d);
-    eta_d = q_d(1);
-    e_d = q_d(2:4);
+    q_d = euler2q(phi_d,theta_d,psi_d); % complete quaternion
+    eta_d = q_d(1);                     % real part of quat. (for easier calc.)
+    e_d = q_d(2:4);                     % imaginary part of quat. (for easier calc.)
 
-    % w_tilde
+    % w_tilde (error in angular rates)
     T_inv = [1 0 -sin(theta_d); 0 cos(phi_d) cos(theta_d)*sin(phi_d); 0 -sin(phi_d) cos(theta_d)*cos(phi_d)]; 
-    Theta_big = [phi_d, theta_d, psi_d];
+    Theta_big = [phi_d, theta_d, psi_d];    % vector of desired euler angles. Parameters defined above
     
-    % 2.26 In Fossen, did not give good results...
+    %2.26 In Fossen, did not give good results...
     % T = [1 sin(phi_d)*tan(theta_d) cos(phi_d)*tan(theta_d); 0 cos(phi_d) -sin(phi_d); 0 (sin(phi_d)/cos(theta_d)) (cos(phi_d)/cos(theta_d))];
     % Theta_big_dot = T*w_d;
     
-    Theta_big_dot = [deg2rad*cos(0.1*t); 0; deg2rad*(-0.75)*sin(0.05*t)];
-    w_d = T_inv*Theta_big_dot;
+    Theta_big_dot = [deg2rad*cos(0.1*t); 0; deg2rad*(-0.75)*sin(0.05*t)];   % Euler rate vector
+    w_d = T_inv*Theta_big_dot;  % error in angular rates
 
-    % The quaternion error using the conjugate of a quaternion
-    q_tilde = [eta_d*eta + e_d'*e; eta_d*e - eta*e_d + Smtrx(-e_d)*e];
-    eta_tilde = q_tilde(1);
-    e_tilde = q_tilde(2:4); 
     
-    w_tilde = w - w_d;
+    q_tilde = [eta_d*eta + e_d'*e; eta_d*e - eta*e_d + Smtrx(-e_d)*e];  % quaternian error (Expression from Prob. 1.4)
+    eta_tilde = q_tilde(1);     % eta_tilde, real term of quat. (for easier calc.)
+    e_tilde = q_tilde(2:4);     % e_tilde, im. term for quat. (for easier calc.) 
+    
+    w_tilde = w - w_d;  % error angular rates
     
    tau  = -Kd*eye(3)*w_tilde - kp*e_tilde; % control law
 
@@ -111,7 +111,7 @@ for i = 1:N+1
    q  = q/norm(q);               % unit quaternion normalization
 end 
 
-%% Storing data
+%% Defining variables
 t       = table(:,1);  
 q       = table(:,2:5); 
 
@@ -155,7 +155,7 @@ subplot(212),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('Control input \t
 legend('tau_1', 'tau_2', 'tau_3');
 hold on 
 
- %plot quaternion 
+% plot quaternion 
 %  figure(3)
 %  subplot (211), plot(t,q(:,1)),xlabel('time(s)'),ylabel(''),title('\eta'),grid
 %  subplot (212), plot(t,q(:,2)),xlabel('time(s)'),ylabel(''),title('\epsilon_1'),grid
@@ -175,6 +175,3 @@ hold on
 
 % figure(6)
 % plot(t,eta_tilde),xlabel('time(s)'),ylabel(''),title('\eta~'),grid
-
-% figure(7)
-% plot(t,w_d);
