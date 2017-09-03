@@ -21,7 +21,7 @@
 
 %% USER INPUTS
 h = 0.1;                    % sample time (s)
-N  = 20000;                  % number of samples
+N  = 2000;                  % number of samples
 
 % model parameters
 m = 100;                    % mass of the satellite [kg]
@@ -47,12 +47,16 @@ q = euler2q(phi,theta,psi);   % transform initial Euler angles to q
 
 w = [0 0 0]';                 % initial angular rates
 
-table = zeros(N+1,14);        % memory allocation
+table = zeros(N+1,17);        % memory allocation
 
 %% FOR-END LOOP
 for i = 1:N+1,
    t = (i-1)*h;                     % time
    
+    % Actual position
+    eta = q(1);
+    e = q(2:4);
+    
     % Desired position
     phi_d = 10*sin(0.1*t);
     theta_d = 0; 
@@ -60,24 +64,30 @@ for i = 1:N+1,
    
     q_d = euler2q(phi_d,theta_d,psi_d);
     eta_d = q_d(1);
-    e_d = q_d(2:4)
+    e_d = q_d(2:4);
 
-    eta = q(1);
-    e = q(2:4);
-    
+   
+    % q_tilde
     q_tilde = [eta_d*eta + e_d'*e; eta_d*e - eta*e_d - Smtrx(e_d)*e];
     eta_tilde = q_tilde(1);
     e_tilde = q_tilde(2:4); 
+    
     
    tau  = -Kd*eye(3)*w - kp*e_tilde; % control law
 
    [phi,theta,psi] = q2euler(q);    % transform q to Euler angles
    [J,J1,J2] = quatern(q);          % kinematic transformation matrices
    
+   % Error from desired to actual pos. in Euler angles
+   phi_error = phi - phi_d;
+   theta_error = theta - theta_d;
+   psi_error = psi - psi_d; 
+   
+   
    q_dot = J2*w;                        % quaternion kinematics
    w_dot = I_inv*(Smtrx(I*w)*w + tau);  % rigid-body kinetics
    
-   table(i,:) = [t q' phi theta psi w' tau'];  % store data in table
+   table(i,:) = [t q' phi theta psi w' tau' phi_error, theta_error, psi_error];  % store data in table
    
    q = q + h*q_dot;	             % Euler integration
    w = w + h*w_dot;
@@ -93,6 +103,11 @@ theta   = rad2deg*table(:,7);
 psi     = rad2deg*table(:,8);
 w       = rad2deg*table(:,9:11);  
 tau     = table(:,12:14);
+psi_error = table(:,15);
+theta_error = table(:,16);
+phi_error = table(:,17);
+
+
 
 %% Plot
 close all
@@ -112,21 +127,20 @@ subplot(212),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('Control input \t
 legend('tau_1', 'tau_2', 'tau_3');
 hold on 
 
-
-%plot quaternion 
-figure
-subplot (211), plot(t,q(:,1)),xlabel('time(s)'),ylabel(''),title('\eta'),grid
-subplot (212), plot(t,q(:,2)),xlabel('time(s)'),ylabel(''),title('\epsilon_1'),grid
-hold on
-
-figure
-subplot (211), plot(t,q(:,3)),xlabel('time(s)'),ylabel(''),title('\epsilon_2'),grid
-subplot (212), plot(t,q(:,4)),xlabel('time(s)'),ylabel(''),title('\epsilon_3'),grid
-hold on 
+% %plot quaternion 
+% figure
+% subplot (211), plot(t,q(:,1)),xlabel('time(s)'),ylabel(''),title('\eta'),grid
+% subplot (212), plot(t,q(:,2)),xlabel('time(s)'),ylabel(''),title('\epsilon_1'),grid
+% hold on
+% 
+% figure
+% subplot (211), plot(t,q(:,3)),xlabel('time(s)'),ylabel(''),title('\epsilon_2'),grid
+% subplot (212), plot(t,q(:,4)),xlabel('time(s)'),ylabel(''),title('\epsilon_3'),grid
+% hold on 
 
 % Plot error in euler angles
 figure(gcf)
-subplot(311),plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('Roll angle \phi'),grid
-subplot(312),plot(t,theta),xlabel('time (s)'),ylabel('deg'),title('Pitch angle \theta'),grid
-subplot(313),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('Yaw angle \psi'),grid
+subplot(311),plot(t,phi_error),xlabel('time (s)'),ylabel('deg'),title('Error roll angle \phi'),grid
+subplot(312),plot(t,theta_error),xlabel('time (s)'),ylabel('deg'),title('Error pitch angle \theta'),grid
+subplot(313),plot(t,psi_error),xlabel('time (s)'),ylabel('deg'),title('Error yaw angle \psi'),grid
 hold on 
