@@ -22,7 +22,7 @@
 
 %% USER INPUTS
 h = 0.1;                    % sample time (s)
-N  = 3000;                  % number of samples
+N  = 4000;                  % number of samples
 
 % model parameters
 m = 100;                    % mass of the satellite [kg]
