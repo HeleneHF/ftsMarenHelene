@@ -22,7 +22,7 @@
 
 %% USER INPUTS
 h = 0.1;                    % sample time (s)
-N  = 8000;                  % number of samples
+N  = 3000;                  % number of samples
 
 % model parameters
 m = 100;                    % mass of the satellite [kg]
@@ -74,7 +74,12 @@ for i = 1:N+1
 
     % w_tilde
     T_inv = [1 0 -sin(theta_d); 0 cos(phi_d) cos(theta_d)*sin(phi_d); 0 -sin(phi_d) cos(theta_d)*cos(phi_d)]; 
-    Theta_big = [phi_d,theta_d,psi_d];
+    Theta_big = [phi_d, theta_d, psi_d];
+    
+    % 2.26 In Fossen, did not give good results...
+    % T = [1 sin(phi_d)*tan(theta_d) cos(phi_d)*tan(theta_d); 0 cos(phi_d) -sin(phi_d); 0 (sin(phi_d)/cos(theta_d)) (cos(phi_d)/cos(theta_d))];
+    % Theta_big_dot = T*w_d;
+    
     Theta_big_dot = [deg2rad*cos(0.1*t); 0; deg2rad*(-0.75)*sin(0.05*t)];
     w_d = T_inv*Theta_big_dot;
 
