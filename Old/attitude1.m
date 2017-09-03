@@ -20,13 +20,13 @@
 % Author:                   2017-09-01 Maren Eidal & Helene H. Fossum
 
 %% USER INPUTS
-h = 0.1;                    % sample time (s)
-N  = 2000;                  % number of samples
+h = 0.1;                     % sample time (s)
+N  = 2000;                   % number of samples
 
 % model parameters
-m = 100;                    % mass of the satellite [kg]
-r = 2;                      % radius of the satellite [m]
-I = m*r^2*diag([1 1 1]);    % inertia matrix
+m = 100;    % mass of the satellite [kg]
+r = 2;      % radius of the satellite [m]
+I = m*r^2*diag([1 1 1]);       % inertia matrix
 I_inv = inv(I);
 
 %PD controller gains
@@ -39,9 +39,9 @@ kp = 1;
 deg2rad = pi/180;   
 rad2deg = 180/pi;
 
-phi = 10*deg2rad;           % initial Euler angles
-theta = -5*deg2rad;
-psi = 15*deg2rad;
+phi = -10*deg2rad;            % initial Euler angles
+theta = 10*deg2rad;
+psi = 5*deg2rad;
 
 q = euler2q(phi,theta,psi);   % transform initial Euler angles to q
 
@@ -54,8 +54,8 @@ for i = 1:N+1,
    t = (i-1)*h;                     % time
    tau  = -Kd*eye(3)*w - kp*q(2:4); % control law
 
-   [phi,theta,psi] = q2euler(q);    % transform q to Euler angles
-   [J,J1,J2] = quatern(q);          % kinematic transformation matrices
+   [phi,theta,psi] = q2euler(q); % transform q to Euler angles
+   [J,J1,J2] = quatern(q);       % kinematic transformation matrices
    
    q_dot = J2*w;                        % quaternion kinematics
    w_dot = I_inv*(Smtrx(I*w)*w + tau);  % rigid-body kinetics
@@ -78,7 +78,6 @@ w       = rad2deg*table(:,9:11);
 tau     = table(:,12:14);
 
 %% Plot
-% plot in Euler angles
 clf
 figure(gcf)
 subplot(311),plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('Roll angle \phi'),grid
@@ -91,8 +90,6 @@ subplot(211),plot(t,w),xlabel('time (s)'),ylabel('deg/s'),title('Angular velocit
 legend('p','q','r');
 subplot(212),plot(t,tau),xlabel('time (s)'),ylabel('Nm'),title('Control input \tau'),grid,
 legend('tau_1', 'tau_2', 'tau_3');
-hold on 
-
 
 %plot quaternion 
 figure
@@ -104,3 +101,5 @@ figure
 subplot (211), plot(t,q(:,3)),xlabel('time(s)'),ylabel(''),title('\epsilon_2'),grid
 subplot (212), plot(t,q(:,4)),xlabel('time(s)'),ylabel(''),title('\epsilon_3'),grid
 hold on 
+
+
