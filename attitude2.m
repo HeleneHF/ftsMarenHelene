@@ -21,7 +21,7 @@
 
 %% USER INPUTS
 h = 0.1;                    % sample time (s)
-N  = 8000;                  % number of samples
+N  = 2000;                  % number of samples
 
 % model parameters
 m = 100;                    % mass of the satellite [kg]
@@ -47,31 +47,30 @@ q = euler2q(phi,theta,psi);   % transform initial Euler angles to q
 
 w = [0 0 0]';                 % initial angular rates
 
-table = zeros(N+1,17);        % memory allocation
+table = zeros(N+1,20);        % memory allocation
 
 %% FOR-END LOOP
-for i = 1:N+1,
+for i = 1:N+1
    t = (i-1)*h;                     % time
    
     % Actual position
     eta = q(1);
     e = q(2:4);
     
-    % Desired position
-    phi_d = 10*sin(0.1*t);
+    % Desired position in Euler angles
+    phi_d = (10*sin(0.1*t))*deg2rad;
     theta_d = 0; 
-    psi_d = 15*cos(0.05*t); 
+    psi_d = (15*cos(0.05*t))*deg2rad; 
    
+    %Desired position in unit quaternions
     q_d = euler2q(phi_d,theta_d,psi_d);
     eta_d = q_d(1);
     e_d = q_d(2:4);
 
-   
-    % q_tilde
+    %The quaternion error using the conjugate of a quaternion
     q_tilde = [eta_d*eta + e_d'*e; eta_d*e - eta*e_d + Smtrx(-e_d)*e];
     eta_tilde = q_tilde(1);
     e_tilde = q_tilde(2:4); 
-    
     
    tau  = -Kd*eye(3)*w - kp*e_tilde; % control law
 
@@ -87,7 +86,7 @@ for i = 1:N+1,
    q_dot = J2*w;                        % quaternion kinematics
    w_dot = I_inv*(Smtrx(I*w)*w + tau);  % rigid-body kinetics
    
-   table(i,:) = [t q' phi theta psi w' tau' phi_error, theta_error, psi_error];  % store data in table
+   table(i,:) = [t q' phi theta psi w' tau' phi_error, theta_error, psi_error, phi_d,theta_d,psi_d];  % store data in table
    
    q = q + h*q_dot;	             % Euler integration
    w = w + h*w_dot;
@@ -98,26 +97,35 @@ end
 %% PLOT FIGURES
 t       = table(:,1);  
 q       = table(:,2:5); 
+
 phi     = rad2deg*table(:,6);
 theta   = rad2deg*table(:,7);
 psi     = rad2deg*table(:,8);
+
 w       = rad2deg*table(:,9:11);  
 tau     = table(:,12:14);
-psi_error = table(:,15);
-theta_error = table(:,16);
-phi_error = table(:,17);
 
+phi_error = rad2deg*table(:,15);
+theta_error = rad2deg*table(:,16);
+psi_error = rad2deg*table(:,17);
 
+phi_d = rad2deg*table(:,18);
+theta_d = rad2deg*table(:,19);
+psi_d = rad2deg*table(:,20);
+
+phi_a = [phi,phi_d];
+theta_a = [theta, theta_d];
+psi_a = [psi, psi_d];
 
 %% Plot
-close all
+
 
 % plot in Euler angles
 clf
 figure(gcf)
-subplot(311),plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('Roll angle \phi'),grid
-subplot(312),plot(t,theta),xlabel('time (s)'),ylabel('deg'),title('Pitch angle \theta'),grid
-subplot(313),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('Yaw angle \psi'),grid
+subplot(311),plot(t,phi_a),xlabel('time (s)'),ylabel('deg'),title('Roll angle \phi'),grid, legend('phi','phi_d')
+subplot(312),plot(t,theta_a),xlabel('time (s)'),ylabel('deg'),title('Pitch angle \theta'),grid, legend('theta','theta_d')
+subplot(313),plot(t,psi_a),xlabel('time (s)'),ylabel('deg'),title('Yaw angle \psi'),grid, legend('psi','psi_d')
 hold on 
 
 figure
@@ -144,3 +152,4 @@ subplot(311),plot(t,phi_error),xlabel('time (s)'),ylabel('deg'),title('Error rol
 subplot(312),plot(t,theta_error),xlabel('time (s)'),ylabel('deg'),title('Error pitch angle \theta'),grid
 subplot(313),plot(t,psi_error),xlabel('time (s)'),ylabel('deg'),title('Error yaw angle \psi'),grid
 hold on 
+
