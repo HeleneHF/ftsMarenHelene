@@ -126,7 +126,7 @@ hold on
 
 % Plot error in euler angles
 figure(gcf)
-subplot(311),plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('Error roll angle \phi'),grid
-subplot(312),plot(t,theta),xlabel('time (s)'),ylabel('deg'),title('Error pitch angle \theta'),grid
-subplot(313),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('Erroryaw angle \psi'),grid
+subplot(311),plot(t,phi),xlabel('time (s)'),ylabel('deg'),title('Roll angle \phi'),grid
+subplot(312),plot(t,theta),xlabel('time (s)'),ylabel('deg'),title('Pitch angle \theta'),grid
+subplot(313),plot(t,psi),xlabel('time (s)'),ylabel('deg'),title('Yaw angle \psi'),grid
 hold on 
