@@ -39,9 +39,10 @@ kp = 1;
 deg2rad = pi/180;   
 rad2deg = 180/pi;
 
-phi = 10*deg2rad;           % initial Euler angles
-theta = -5*deg2rad;
-psi = 15*deg2rad;
+% initial Euler angles
+phi = 10*deg2rad;           % roll
+theta = -5*deg2rad;         % pitch     
+psi = 15*deg2rad;           % yaw
 
 q = euler2q(phi,theta,psi);   % transform initial Euler angles to q
 
